@@ -58,8 +58,7 @@ class Battlesnake(object):
 
         for move in possible_moves:
           potential_move = self.check_potential_move(move, head)
-          print(f"{potential_move}")
-          if self.out_of_bounds(potential_move, board_height, board_width) == True: # If it's OOB - continue, else - actualize potential_move
+          if self.out_of_bounds(potential_move, board_height, board_width) == True or self.collides_with_body(potential_move, body) == True:
             continue
           else:
             print(f"MOVE: {move}")
@@ -67,16 +66,9 @@ class Battlesnake(object):
               "move": move
             }
         
-        # print("DEFAULT MOVE: up")
-        # return {
-        #   "move": "up"
-        # }
-
         for section in body:
           print(f"The body seems to be at: {section}")
 
-        # print(f"MOVE: {move}")
-        # return {"move": move}
 
     # Returns future position of snake's head
     def check_potential_move(self, move, head):
@@ -100,6 +92,13 @@ class Battlesnake(object):
           return True
       return False
 
+    def collides_with_body(self, potential_move, body):
+      for section in body:
+        if potential_move["x"] == section["x"] and potential_move["y"] == section["y"]:
+          print("True")
+          return True;
+      print("False")
+      return False
 
     @cherrypy.expose
     @cherrypy.tools.json_in()
