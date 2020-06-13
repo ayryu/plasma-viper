@@ -31,8 +31,12 @@ class Battlesnake(object):
         # cherrypy.request.json contains information about the game that's about to be played.
         # TODO: Use this function to decide how your snake is going to look on the board.
         data = cherrypy.request.json
+        board_height = data["board"]["height"]
+        board_width = data["board"]["width"]
 
         print("START")
+        print(f"The height is: {board_height}")
+        print(f"The width is: {board_width}")
         return "ok"
 
     @cherrypy.expose
@@ -50,22 +54,32 @@ class Battlesnake(object):
 
         print(f"The head's current position is: {head}")
 
-        # Choose a random direction to move in
         possible_moves = ["up", "down", "left", "right"]
-        if head["x"] == 0:
-          move = "right"
-        if head["y"] == 11:
-          move = "right"  
-        else:
-          move = random.choice(possible_moves)
+
+        for move in possible_moves:
+          potential_move = self.check_potential_move(move, head)
+          print(f"{potential_move}")
+          if self.out_of_bounds(potential_move, board_height, board_width) == True: # If it's OOB - continue, else - actualize potential_move
+            continue
+          else:
+            print(f"MOVE: {move}")
+            return {
+              "move": move
+            }
+        
+        # print("DEFAULT MOVE: up")
+        # return {
+        #   "move": "up"
+        # }
 
         for section in body:
           print(f"The body seems to be at: {section}")
 
-        print(f"MOVE: {move}")
-        return {"move": move}
+        # print(f"MOVE: {move}")
+        # return {"move": move}
 
-    def make_next_move(self, move, body):
+    # Returns future position of snake's head
+    def check_potential_move(self, move, head):
       if move == "up":
           return {"x": head["x"],"y": head["y"] + 1} 
       elif move == "down":
@@ -74,6 +88,17 @@ class Battlesnake(object):
           return {"x": head["x"] + 1, "y": head["y"]}
       elif move == "right": 
           return {"x": head["x"] - 1, "y": head["y"]}
+
+    def out_of_bounds(self, potential_move, height, width):
+      if (potential_move["x"] < 0):
+          return True
+      if (potential_move["y"] < 0):
+          return True
+      if (potential_move["x"] >= width):
+          return True
+      if (potential_move["y"] >= height):
+          return True
+      return False
 
 
     @cherrypy.expose
