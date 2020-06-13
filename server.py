@@ -77,9 +77,9 @@ class Battlesnake(object):
       elif move == "down":
           return {"x": head["x"],"y": head["y"] - 1}
       elif move == "left":
-          return {"x": head["x"] + 1, "y": head["y"]}
-      elif move == "right": 
           return {"x": head["x"] - 1, "y": head["y"]}
+      elif move == "right": 
+          return {"x": head["x"] + 1, "y": head["y"]}
 
     def out_of_bounds(self, potential_move, height, width):
       if (potential_move["x"] < 0):
@@ -97,7 +97,6 @@ class Battlesnake(object):
         if potential_move["x"] == section["x"] and potential_move["y"] == section["y"]:
           print("True")
           return True;
-      print("False")
       return False
 
     @cherrypy.expose
