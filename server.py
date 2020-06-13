@@ -19,9 +19,9 @@ class Battlesnake(object):
         return {
             "apiversion": "1",
             "author": "",  # TODO: Your Battlesnake Username
-            "color": "#888888",  # TODO: Personalize
-            "head": "default",  # TODO: Personalize
-            "tail": "default",  # TODO: Personalize
+            "color": "#66ffb3",  # TODO: Personalize
+            "head": "shac-workout",  # TODO: Personalize
+            "tail": "bwc-flake",  # TODO: Personalize
         }
 
     @cherrypy.expose
@@ -43,13 +43,38 @@ class Battlesnake(object):
         # Valid moves are "up", "down", "left", or "right".
         # TODO: Use the information in cherrypy.request.json to decide your next move.
         data = cherrypy.request.json
+        head = data["you"]["head"]
+        body = data["you"]["body"]
+        board_height = data["board"]["height"]
+        board_width = data["board"]["width"]
+
+        print(f"The head's current position is: {head}")
 
         # Choose a random direction to move in
         possible_moves = ["up", "down", "left", "right"]
-        move = random.choice(possible_moves)
+        if head["x"] == 0:
+          move = "right"
+        if head["y"] == 11:
+          move = "right"  
+        else:
+          move = random.choice(possible_moves)
+
+        for section in body:
+          print(f"The body seems to be at: {section}")
 
         print(f"MOVE: {move}")
         return {"move": move}
+
+    def make_next_move(self, move, body):
+      if move == "up":
+          return {"x": head["x"],"y": head["y"] + 1} 
+      elif move == "down":
+          return {"x": head["x"],"y": head["y"] - 1}
+      elif move == "left":
+          return {"x": head["x"] + 1, "y": head["y"]}
+      elif move == "right": 
+          return {"x": head["x"] - 1, "y": head["y"]}
+
 
     @cherrypy.expose
     @cherrypy.tools.json_in()
