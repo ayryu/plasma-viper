@@ -33,10 +33,12 @@ class Battlesnake(object):
         data = cherrypy.request.json
         board_height = data["board"]["height"]
         board_width = data["board"]["width"]
+        all_snakes = data["board"]["snakes"]
 
+        for snake in all_snakes:
+          name = snake["name"]
+          print(f"This snake is: {name}")
         print("START")
-        print(f"The height is: {board_height}")
-        print(f"The width is: {board_width}")
         return "ok"
 
     @cherrypy.expose
@@ -44,23 +46,29 @@ class Battlesnake(object):
     @cherrypy.tools.json_out()
     def move(self):
         # This function is called on every turn of a game. It's how your snake decides where to move.
-        # Valid moves are "up", "down", "left", or "right".
-        # TODO: Use the information in cherrypy.request.json to decide your next move.
         data = cherrypy.request.json
         head = data["you"]["head"]
         body = data["you"]["body"]
         board_height = data["board"]["height"]
         board_width = data["board"]["width"]
+        all_food_locations = data["board"]["food"]
+        turn = data["turn"]
 
-        print(f"The head's current position is: {head}")
+        # print(f"The head's current position is: {head}")
 
         possible_moves = ["up", "down", "left", "right"]
+        appropriate_moves = []
+        nearest_food_index = 0
 
         for move in possible_moves:
           potential_move = self.check_potential_move(move, head)
           if self.out_of_bounds(potential_move, board_height, board_width) == True or self.collides_with_body(potential_move, body) == True:
             continue
           else:
+            nearest_food_index = self.find_closest_food(head, all_food_locations)
+            print(f"Turn number: {turn}")
+            print(f"Closest food is: {all_food_locations[nearest_food_index]}")
+            print(f"The head is currently located at {head}")
             print(f"MOVE: {move}")
             return {
               "move": move
@@ -98,6 +106,17 @@ class Battlesnake(object):
           print("True")
           return True;
       return False
+
+    def find_closest_food(self, head, all_food_locations):
+      closest_food = abs(all_food_locations[0]["x"] - head["x"]) + abs(all_food_locations[0]["y"]- head["y"])
+      closest_food_index = 0
+      for index, food in enumerate(all_food_locations):
+        value_of_potential = abs(food["x"] - head["x"]) + abs(food["y"] - head["y"])
+        if(value_of_potential <= closest_food):
+          closest_food = value_of_potential
+          closest_food_index = index
+
+      return closest_food_index
 
     @cherrypy.expose
     @cherrypy.tools.json_in()
