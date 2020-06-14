@@ -54,39 +54,67 @@ class Battlesnake(object):
         all_food_locations = data["board"]["food"]
         turn = data["turn"]
 
-        # print(f"The head's current position is: {head}")
-
-        possible_moves = ["up", "down", "left", "right"]
-        appropriate_moves = []
         nearest_food_index = 0
 
-        for move in possible_moves:
-          potential_move = self.check_potential_move(move, head)
-          if self.out_of_bounds(potential_move, board_height, board_width) == True or self.collides_with_body(potential_move, body) == True:
-            continue
-          else:
-            nearest_food_index = self.find_closest_food(head, all_food_locations)
-            print(f"Turn number: {turn}")
-            print(f"Closest food is: {all_food_locations[nearest_food_index]}")
-            print(f"The head is currently located at {head}")
-            print(f"MOVE: {move}")
-            return {
-              "move": move
-            }
-        
-        for section in body:
-          print(f"The body seems to be at: {section}")
+        # possible_moves = ["up", "down", "left", "right"]
+        # appropriate_moves = []
 
+        # for move in possible_moves:
+        nearest_food_index = self.find_closest_food(head, all_food_locations)
+        nearest_food_position = all_food_locations[nearest_food_index]
+        movement = self.move_towards_food(nearest_food_position, head)
+        potential_move = self.check_potential_move(movement, head)
+
+        if self.out_of_bounds(potential_move, board_height, board_width) == False or self.collides_with_body(potential_move, body) == False:
+          # continue
+        # else:
+          # nearest_food_index = self.find_closest_food(head, all_food_locations)
+          # nearest_food_position = all_food_locations[nearest_food_index]
+          # direction = move_towards_food(nearest_food_position, head)
+          print(f"Turn number: {turn}")
+          print(f"Closest food is: {all_food_locations[nearest_food_index]}")
+          print(f"The head is currently located at {head}")
+          for section in body:
+            print(f"The body seems to be at: {section}")
+          print(f"MOVE: {movement}")
+          return {
+            "move": movement
+          }
+
+    # Snake moves along furthest axis
+    def move_towards_food(self, nearest_food_position, head):
+      x_distance = abs(nearest_food_position["x"] - head["x"])
+      y_distance = abs(nearest_food_position["y"] - head["y"])
+      if x_distance >= y_distance:
+          direction = self.move_direction(head["x"], nearest_food_position["x"])
+          if direction == True:
+            return "left"
+          if direction == False:
+            return "right"
+      if x_distance < y_distance:
+        direction = self.move_direction(head["y"], nearest_food_position["y"])
+        if direction == True:
+          return "down"
+        if direction == False:
+          return "up"
+
+    def move_direction(self, head, nearest_food_position):
+      if nearest_food_position - head == 0:
+        return True
+      if nearest_food_position - head < 0:
+        return True
+      if nearest_food_position - head > 0:
+        return False
 
     # Returns future position of snake's head
-    def check_potential_move(self, move, head):
-      if move == "up":
+    def check_potential_move(self, movement, head):
+      if movement == "up":
           return {"x": head["x"],"y": head["y"] + 1} 
-      elif move == "down":
+      elif movement == "down":
           return {"x": head["x"],"y": head["y"] - 1}
-      elif move == "left":
+      elif movement == "left":
           return {"x": head["x"] - 1, "y": head["y"]}
-      elif move == "right": 
+      elif movement == "right": 
           return {"x": head["x"] + 1, "y": head["y"]}
 
     def out_of_bounds(self, potential_move, height, width):
