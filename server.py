@@ -49,62 +49,58 @@ class Battlesnake(object):
         data = cherrypy.request.json
         head = data["you"]["head"]
         body = data["you"]["body"]
-        board_height = data["board"]["height"]
-        board_width = data["board"]["width"]
+        height = data["board"]["height"]
+        width = data["board"]["width"]
         all_food_locations = data["board"]["food"]
         turn = data["turn"]
-
         nearest_food_index = 0
 
-        # possible_moves = ["up", "down", "left", "right"]
-        # appropriate_moves = []
-
-        # for move in possible_moves:
         nearest_food_index = self.find_closest_food(head, all_food_locations)
         nearest_food_position = all_food_locations[nearest_food_index]
-        movement = self.move_towards_food(nearest_food_position, head)
-        potential_move = self.check_potential_move(movement, head)
+        # movement = self.move_towards_food(nearest_food_position, head)
+        # potential_move = self.check_potential_move(movement, head)
 
-        if self.out_of_bounds(potential_move, board_height, board_width) == False or self.collides_with_body(potential_move, body) == False:
-          # continue
-        # else:
-          # nearest_food_index = self.find_closest_food(head, all_food_locations)
-          # nearest_food_position = all_food_locations[nearest_food_index]
-          # direction = move_towards_food(nearest_food_position, head)
-          print(f"Turn number: {turn}")
-          print(f"Closest food is: {all_food_locations[nearest_food_index]}")
-          print(f"The head is currently located at {head}")
-          for section in body:
-            print(f"The body seems to be at: {section}")
-          print(f"MOVE: {movement}")
-          return {
-            "move": movement
-          }
+        possible_moves = ["up", "down", "left", "right"]
+        for move in possible_moves:
+          potential_move = self.check_potential_move(move, head)
+          if self.out_of_bounds(potential_move, height, width) == True or self.collides_with_body(potential_move, body) == True or self.moves_away_from_food(nearest_food_position, head, potential_move, body) == True:
+            continue
 
-    # Snake moves along furthest axis
-    def move_towards_food(self, nearest_food_position, head):
-      x_distance = abs(nearest_food_position["x"] - head["x"])
-      y_distance = abs(nearest_food_position["y"] - head["y"])
-      if x_distance >= y_distance:
-          direction = self.move_direction(head["x"], nearest_food_position["x"])
-          if direction == True:
-            return "left"
-          if direction == False:
-            return "right"
-      if x_distance < y_distance:
-        direction = self.move_direction(head["y"], nearest_food_position["y"])
-        if direction == True:
-          return "down"
-        if direction == False:
-          return "up"
+        # If oob or collision will happen, switch targets
 
-    def move_direction(self, head, nearest_food_position):
-      if nearest_food_position - head == 0:
+        # else: 
+          if self.out_of_bounds(potential_move, height, width) == False or self.collides_with_body(potential_move, body) == False or self.moves_away_from_food(nearest_food_position, head, potential_move) == False:
+            print(f"Turn number: {turn}")
+            print(f"Closest food is: {all_food_locations[nearest_food_index]}")
+            print(f"Food positions: {all_food_locations}")
+            print(f"The head is currently located at {head}")
+            for section in body:
+              print(f"The body seems to be at: {section}")
+            print(f"MOVE: {move}")
+            return {
+              "move": move
+            }
+
+    def switch_path_to_food(self, all_food_locations, nearest_food_position):
+      # Head moves around body and within bounds to get food
+
+    def moves_away_from_food(self, nearest_food_position, head, potential_move):
+      x_moves_away = self.check_food_distance(head["x"], nearest_food_position["x"], potential_move["x"])
+      y_moves_away = self.check_food_distance(head["y"], nearest_food_position["y"], potential_move["y"])
+
+      if x_moves_away == True or y_moves_away == True:
         return True
-      if nearest_food_position - head < 0:
-        return True
-      if nearest_food_position - head > 0:
+      if x_moves_away == False and y_moves_away == False:
         return False
+
+    def check_food_distance(self, head, nearest_food_position, potential_move):
+      # check collision and OOB here
+      head_difference = abs(nearest_food_position - head)
+      potential_difference = abs(nearest_food_position - potential_move)
+      if head_difference < potential_difference:
+        return True # Head is closer to food than potential_move
+      if potential_difference <= head_difference:
+        return False # Potential_move is closer or doesn't change position
 
     # Returns future position of snake's head
     def check_potential_move(self, movement, head):
@@ -131,7 +127,6 @@ class Battlesnake(object):
     def collides_with_body(self, potential_move, body):
       for section in body:
         if potential_move["x"] == section["x"] and potential_move["y"] == section["y"]:
-          print("True")
           return True;
       return False
 
