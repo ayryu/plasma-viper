@@ -35,9 +35,9 @@ class Battlesnake(object):
         board_width = data["board"]["width"]
         all_snakes = data["board"]["snakes"]
 
-        for snake in all_snakes:
-          name = snake["name"]
-          print(f"This snake is: {name}")
+        # for snake in all_snakes:
+        #   name = snake["name"]
+        #   print(f"This snake is: {name}")
         print("START")
         return "ok"
 
@@ -59,7 +59,8 @@ class Battlesnake(object):
 
         nearest_food_position = self.find_closest_food(head, all_food_locations)
         # testing find_food_path
-        self.find_food_path(head, all_food_locations)
+        food_path = self.find_food_path(head, nearest_food_position)
+        self.switch_path_to_food(food_path, body)
 
         possible_moves = ["up", "down", "left", "right"]
         for move in possible_moves:
@@ -67,13 +68,8 @@ class Battlesnake(object):
 
           if self.out_of_bounds(potential_move, height, width) == True or self.collides_with_body(potential_move, body) == True or self.moves_away_from_food(nearest_food_position, head, potential_move) == True:
             continue
-
-        # If oob or collision will happen, switch targets
-
         # else: 
           if self.out_of_bounds(potential_move, height, width) == False or self.collides_with_body(potential_move, body) == False or self.moves_away_from_food(nearest_food_position, head, potential_move) == False:
-            # testing find_food_path
-            # self.find_food_path(head, all_food_locations)
             print(f"Closest food is: {nearest_food_position}")
             print(f"Food positions: {all_food_locations}")
             print(f"The head is currently located at {head}")
@@ -83,9 +79,9 @@ class Battlesnake(object):
               "move": move
             }
 
-    def switch_path_to_food(self, all_food_locations, nearest_food_position):
-      # Head moves around body and within bounds to get food
-      print("Hello")
+    def switch_path_to_food(self, food_path, body):
+      # Snake coils if collision is predicted
+      print(f"The collision points are: {[collision for collision in body if collision in food_path]}")
 
     def moves_away_from_food(self, nearest_food_position, head, potential_move):
       x_moves_away = self.check_food_distance(head["x"], nearest_food_position["x"], potential_move["x"])
@@ -147,11 +143,11 @@ class Battlesnake(object):
       return all_food_locations[closest_food_index]
     
     # Outputs array of every square's coordinates in shortest path
-    def find_food_path(self, head, all_food_locations): 
+    def find_food_path(self, head, closest_food): 
       path_of_x = []
       path_of_y = []
       shortest_path = []
-      closest_food = self.find_closest_food(head, all_food_locations)
+      # closest_food = self.find_closest_food(head, all_food_locations)
 
       if closest_food["y"] - head["y"] != 0: 
         path_of_y = self.add_path_coordinates(closest_food["y"], head["y"])
