@@ -55,27 +55,29 @@ class Battlesnake(object):
         turn = data["turn"]
         nearest_food_index = 0
 
-        nearest_food_index = self.find_closest_food(head, all_food_locations)
-        nearest_food_position = all_food_locations[nearest_food_index]
-        # movement = self.move_towards_food(nearest_food_position, head)
-        # potential_move = self.check_potential_move(movement, head)
+        print(f"Turn number: {turn}")
+
+        nearest_food_position = self.find_closest_food(head, all_food_locations)
+        # testing find_food_path
+        self.find_food_path(head, all_food_locations)
 
         possible_moves = ["up", "down", "left", "right"]
         for move in possible_moves:
           potential_move = self.check_potential_move(move, head)
-          if self.out_of_bounds(potential_move, height, width) == True or self.collides_with_body(potential_move, body) == True or self.moves_away_from_food(nearest_food_position, head, potential_move, body) == True:
+
+          if self.out_of_bounds(potential_move, height, width) == True or self.collides_with_body(potential_move, body) == True or self.moves_away_from_food(nearest_food_position, head, potential_move) == True:
             continue
 
         # If oob or collision will happen, switch targets
 
         # else: 
           if self.out_of_bounds(potential_move, height, width) == False or self.collides_with_body(potential_move, body) == False or self.moves_away_from_food(nearest_food_position, head, potential_move) == False:
-            print(f"Turn number: {turn}")
-            print(f"Closest food is: {all_food_locations[nearest_food_index]}")
+            # testing find_food_path
+            # self.find_food_path(head, all_food_locations)
+            print(f"Closest food is: {nearest_food_position}")
             print(f"Food positions: {all_food_locations}")
             print(f"The head is currently located at {head}")
-            for section in body:
-              print(f"The body seems to be at: {section}")
+            print(f"The body is at: {body}")
             print(f"MOVE: {move}")
             return {
               "move": move
@@ -83,6 +85,7 @@ class Battlesnake(object):
 
     def switch_path_to_food(self, all_food_locations, nearest_food_position):
       # Head moves around body and within bounds to get food
+      print("Hello")
 
     def moves_away_from_food(self, nearest_food_position, head, potential_move):
       x_moves_away = self.check_food_distance(head["x"], nearest_food_position["x"], potential_move["x"])
@@ -130,16 +133,53 @@ class Battlesnake(object):
           return True;
       return False
 
+    # filters through list of available food
     def find_closest_food(self, head, all_food_locations):
-      closest_food = abs(all_food_locations[0]["x"] - head["x"]) + abs(all_food_locations[0]["y"]- head["y"])
+      closest_food = abs(all_food_locations[0]["x"] - head["x"]) + abs(all_food_locations[0]["y"]- head["y"]) # total number of squares that you travel to reach food
       closest_food_index = 0
+
       for index, food in enumerate(all_food_locations):
         value_of_potential = abs(food["x"] - head["x"]) + abs(food["y"] - head["y"])
         if(value_of_potential <= closest_food):
           closest_food = value_of_potential
           closest_food_index = index
 
-      return closest_food_index
+      return all_food_locations[closest_food_index]
+    
+    # Outputs array of every square's coordinates in shortest path
+    def find_food_path(self, head, all_food_locations): 
+      path_of_x = []
+      path_of_y = []
+      shortest_path = []
+      closest_food = self.find_closest_food(head, all_food_locations)
+
+      if closest_food["y"] - head["y"] != 0: 
+        path_of_y = self.add_path_coordinates(closest_food["y"], head["y"])
+        for y in path_of_y:
+          shortest_path.append({"x": head["x"], "y": y})
+
+      if closest_food["x"] - head["x"] != 0:
+        path_of_x = self.add_path_coordinates(closest_food["x"], head["x"])
+        for x in path_of_x:
+          shortest_path.append({"x": x, "y": closest_food["y"]})
+
+      print(f"The following are in the shortest path: \n {shortest_path}")
+      return shortest_path
+
+    def add_path_coordinates(self, closest_food, head):
+      # if x is +ve, food is up. If x is -ve, food is down
+      # if y is +ve, food is right. If y is -ve, food is left
+      i = 0
+      axis_coordinates = [] # if stationary on axis, return current position
+      if closest_food - head < 0:
+        while(i > closest_food - head):
+          i = i - 1
+          axis_coordinates.append(head + i) # every axis position in path
+      if closest_food - head > 0:
+        while(i < closest_food - head):
+          i = i + 1
+          axis_coordinates.append(head + i) # every axis position in path
+      return axis_coordinates
 
     @cherrypy.expose
     @cherrypy.tools.json_in()
