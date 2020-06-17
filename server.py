@@ -1,19 +1,11 @@
 import os
-import random
-
 import cherrypy
-
-"""
-This is a simple Battlesnake server written in Python.
-For instructions see https://github.com/BattlesnakeOfficial/starter-snake-python/README.md
-"""
 
 
 class Battlesnake(object):
     @cherrypy.expose
     @cherrypy.tools.json_out()
     def index(self):
-        # This function is called when you register your Battlesnake on play.battlesnake.com
         # It controls your Battlesnake appearance and author permissions.
         # TIP: If you open your Battlesnake URL in browser you should see this data
         return {
@@ -23,6 +15,7 @@ class Battlesnake(object):
             "head": "shac-workout",  # TODO: Personalize
             "tail": "bwc-flake",  # TODO: Personalize
         }
+
 
     @cherrypy.expose
     @cherrypy.tools.json_in()
@@ -40,6 +33,7 @@ class Battlesnake(object):
         #   print(f"This snake is: {name}")
         print("START")
         return "ok"
+
 
     @cherrypy.expose
     @cherrypy.tools.json_in()
@@ -61,6 +55,7 @@ class Battlesnake(object):
         # testing find_food_path
         food_path = self.find_food_path(head, nearest_food_position)
         self.switch_path_to_food(food_path, body)
+        self.find_surrounding_area(body)
 
         possible_moves = ["up", "down", "left", "right"]
         for move in possible_moves:
@@ -79,9 +74,11 @@ class Battlesnake(object):
               "move": move
             }
 
+
     def switch_path_to_food(self, food_path, body):
       # Snake coils if collision is predicted
       print(f"The collision points are: {[collision for collision in body if collision in food_path]}")
+
 
     def moves_away_from_food(self, nearest_food_position, head, potential_move):
       x_moves_away = self.check_food_distance(head["x"], nearest_food_position["x"], potential_move["x"])
@@ -92,6 +89,7 @@ class Battlesnake(object):
       if x_moves_away == False and y_moves_away == False:
         return False
 
+
     def check_food_distance(self, head, nearest_food_position, potential_move):
       # check collision and OOB here
       head_difference = abs(nearest_food_position - head)
@@ -100,6 +98,7 @@ class Battlesnake(object):
         return True # Head is closer to food than potential_move
       if potential_difference <= head_difference:
         return False # Potential_move is closer or doesn't change position
+
 
     # Returns future position of snake's head
     def check_potential_move(self, movement, head):
@@ -112,6 +111,7 @@ class Battlesnake(object):
       elif movement == "right": 
           return {"x": head["x"] + 1, "y": head["y"]}
 
+
     def out_of_bounds(self, potential_move, height, width):
       if (potential_move["x"] < 0):
           return True
@@ -123,11 +123,13 @@ class Battlesnake(object):
           return True
       return False
 
+
     def collides_with_body(self, potential_move, body):
       for section in body:
         if potential_move["x"] == section["x"] and potential_move["y"] == section["y"]:
           return True;
       return False
+
 
     # filters through list of available food
     def find_closest_food(self, head, all_food_locations):
@@ -142,12 +144,12 @@ class Battlesnake(object):
 
       return all_food_locations[closest_food_index]
     
+
     # Outputs array of every square's coordinates in shortest path
     def find_food_path(self, head, closest_food): 
       path_of_x = []
       path_of_y = []
       shortest_path = []
-      # closest_food = self.find_closest_food(head, all_food_locations)
 
       if closest_food["y"] - head["y"] != 0: 
         path_of_y = self.add_path_coordinates(closest_food["y"], head["y"])
@@ -161,6 +163,7 @@ class Battlesnake(object):
 
       print(f"The following are in the shortest path: \n {shortest_path}")
       return shortest_path
+
 
     def add_path_coordinates(self, closest_food, head):
       # if x is +ve, food is up. If x is -ve, food is down
@@ -176,6 +179,98 @@ class Battlesnake(object):
           i = i + 1
           axis_coordinates.append(head + i) # every axis position in path
       return axis_coordinates
+
+      # This adds end space for the head and the tail
+    def add_end_spaces(self, body):
+    # x: +ve goes right, -ve goes left
+    # y: +ve goes up, -ve goes down
+      extended_body = []
+      extended_head = body[:]
+      extended_tail = body[:]
+      head_padding = 0
+      tail_padding = 0
+
+      head_direction_x = body[0]["x"] - body[1]["x"]
+      head_direction_y = body[0]["y"] - body[1]["y"]
+
+      if head_direction_x != 0:
+        head_padding = self.help_add_spaces(head_direction_x, extended_head[0]["x"])
+        extended_head.insert(0, {"x": head_padding,"y": extended_head[0]["y"]})
+        print(f"Head Padding: {head_padding}")
+      if head_direction_y != 0:
+        head_padding = self.help_add_spaces(head_direction_y, extended_head[0]["y"])
+        extended_head.insert(0, {"x": extended_head[0]["x"],"y": head_padding})
+        print(f"Head Padding: {head_padding}")
+      
+      tail_direction_x = body[-1]["x"] - body[-2]["x"]
+      tail_direction_y = body[-1]["y"] - body[-2]["y"]
+
+      if tail_direction_x != 0:
+        tail_padding = self.help_add_spaces(tail_direction_x, extended_tail[-1]["x"])
+        extended_tail.append({"x": tail_padding,"y": extended_tail[-1]["x"]})
+        print(f"Tail Padding: {tail_padding}")
+      if tail_direction_y != 0:
+        tail_padding = self.help_add_spaces(tail_direction_y, extended_tail[-1]["y"])
+        extended_tail.append({"x": extended_tail[-1]["x"],"y": tail_padding})
+        print(f"Tail Padding: {tail_padding}")
+      
+      extended_body.append(extended_head)
+      extended_body.append(extended_tail)
+      print(f"Extended head array: {extended_head}")
+      print(f"Extended tail array: {extended_tail}")
+      return extended_body
+  
+    # Adds spaces to head or tail
+    def help_add_spaces(self, section_direction, section_position):
+      section_extra_space = 0
+      if section_direction < 0:
+        section_extra_space = section_position - 1
+      if section_direction > 0:
+        section_extra_space = section_position + 1
+      
+      print(f"Section extra space: {section_extra_space}")
+
+      return section_extra_space
+
+
+# Iterate through entire snake body plus head and tail buffer
+# Compare first and second section of body as you iterate through full body
+# Find the axis with the changing value, and plot surrounding area of static axis value
+# Return full surrounding area 
+    def find_surrounding_area(self, body):
+      body_buffer = self.add_end_spaces(body)
+      head_space = body_buffer[0]
+      tail_space = body_buffer[1]
+      side_a = []
+      side_b = []
+      real_a = []
+      real_b = []
+      answer = []
+
+      for (head_list,tail_list) in zip(head_space, tail_space):
+        compare_x = head_list["x"] - tail_list["x"]
+        compare_y = head_list["y"] - tail_list["y"]
+
+        # Plotting space above and below (add to y) snake's body section
+        if compare_x != 0:
+          side_a.append({"x": head_list["x"],"y": head_list["y"] - 1})
+          side_a.append({"x": tail_list["x"],"y": tail_list["y"] - 1})
+          side_b.append({"x": head_list["x"],"y": head_list["y"] + 1})
+          side_b.append({"x": tail_list["x"],"y": tail_list["y"] + 1})
+
+        # Plotting space left and right (add to x) of snake's body section
+        if compare_y != 0:
+          side_a.append({"x": head_list["x"] - 1,"y": head_list["y"]})
+          side_a.append({"x": tail_list["x"] - 1,"y": tail_list["y"]})
+          side_b.append({"x": head_list["x"] + 1,"y": head_list["y"]})
+          side_b.append({"x": tail_list["x"] + 1,"y": tail_list["y"]})
+          
+        real_a = [duplicate for duplicate in side_a if duplicate not in body]
+        real_b = [duplicate for duplicate in side_b if duplicate not in body]
+
+      print(f"This is real a: {real_a}")
+      print(f"This is real b: {real_b}")
+
 
     @cherrypy.expose
     @cherrypy.tools.json_in()
