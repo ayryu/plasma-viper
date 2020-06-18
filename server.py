@@ -52,7 +52,6 @@ class Battlesnake(object):
         print(f"Turn number: {turn}")
 
         nearest_food_position = self.find_closest_food(head, all_food_locations)
-        # testing find_food_path
         food_path = self.find_food_path(head, nearest_food_position)
         self.switch_path_to_food(food_path, body)
         self.find_surrounding_area(body)
@@ -77,6 +76,30 @@ class Battlesnake(object):
 
     def switch_path_to_food(self, food_path, body):
       # Snake coils if collision is predicted
+      possible_moves = ["up", "down", "left", "right"]
+      potential_moves = []
+
+      # For checking immediate head directions
+        for move in possible_moves:
+          potential_moves.append(self.check_potential_move(move, head))
+        body_collision = [collision for collision in body if collision in potential_moves]
+        if body_collision:
+          for illegal_move in body_collision:
+            potential_moves.remove(illegal_move) 
+        
+      # Checks food path for body collisions
+      nearest_food_position = self.find_closest_food(head, all_food_locations)
+      food_path = self.find_food_path(head, nearest_food_position)
+      self.find_food_path(head, nearest_food_position)
+      body_in_food_path_collision = [collision for collision in body if collision in food_path]
+
+      # if body_in_food_path_collision:
+        
+      return {
+          "move": move
+        } 
+
+        
       print(f"The collision points are: {[collision for collision in body if collision in food_path]}")
 
 
@@ -267,6 +290,10 @@ class Battlesnake(object):
           
         real_a = [duplicate for duplicate in side_a if duplicate not in body]
         real_b = [duplicate for duplicate in side_b if duplicate not in body]
+        answer.append(real_a)
+        answer.append(real_b)
+
+        return answer
 
       print(f"This is real a: {real_a}")
       print(f"This is real b: {real_b}")
