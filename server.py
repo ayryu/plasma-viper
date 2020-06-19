@@ -163,6 +163,7 @@ class Battlesnake(object):
         if(value_of_potential <= closest_food):
           closest_food = value_of_potential
           closest_food_index = index
+      print(f"Tuple of closest food: {tuple(all_food_locations[closest_food_index].values())}")
 
       return all_food_locations[closest_food_index]
     

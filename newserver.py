@@ -48,9 +48,25 @@ class Battlesnake(object):
         # Choose a random direction to move in
         possible_moves = ["up", "down", "left", "right"]
         move = random.choice(possible_moves)
+        start, goal = 
+        best_move = a_star_search(diagram4, start, goal)
 
         print(f"MOVE: {move}")
         return {"move": move}
+
+    def convert_xy_to_direction(self):
+
+      
+    def convert_direction_to_xy(self):
+        if movement == "up":
+          return {"x": head["x"],"y": head["y"] + 1} 
+      elif movement == "down":
+          return {"x": head["x"],"y": head["y"] - 1}
+      elif movement == "left":
+          return {"x": head["x"] - 1, "y": head["y"]}
+      elif movement == "right": 
+          return {"x": head["x"] + 1, "y": head["y"]}
+
 
     @cherrypy.expose
     @cherrypy.tools.json_in()
