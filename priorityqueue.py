@@ -18,7 +18,7 @@ class PriorityQueue:
         (x2, y2) = b
         return abs(x1 - x2) + abs(y1 - y2)
 
-    def a_star_search(graph, start, goal):
+    def a_star_search(potential_moves, start, goal):
         frontier = PriorityQueue()
         frontier.put(start, 0)
         came_from = {}

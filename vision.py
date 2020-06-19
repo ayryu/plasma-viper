@@ -2,8 +2,7 @@
       snake_bodies = []
       for snake in snakes:
         for body in snake["body"]:
-        list = [(k, v) for k, v in body.items()]
-        snake_bodies.extend(list)
+          snake_bodies.append(tuple(body.values()))
       return snake_bodies
 
     def locate_food(self, head, food_locations):

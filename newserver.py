@@ -1,6 +1,7 @@
 import os
 import random
 from priorityqueue import *
+from vision import *
 
 import cherrypy
 
@@ -47,7 +48,7 @@ class Battlesnake(object):
 
         # Choose a random direction to move in
         possible_moves = ["up", "down", "left", "right"]
-        move = random.choice(possible_moves)
+
         start, goal = 
         best_move = a_star_search(diagram4, start, goal)
 
