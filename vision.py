@@ -14,8 +14,9 @@
         if(value_of_potential <= closest_food):
           closest_food = value_of_potential
           closest_food_index = index
+      nearest_food = (tuple(all_food_locations[closest_food_index].values()))
 
-      return all_food_locations[closest_food_index]
+      return nearest_food
 
     # snake_locations value comes from self.locate_snakes
     def check_collisions(self, snake_locations, potential_moves):

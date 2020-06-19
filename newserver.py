@@ -13,9 +13,9 @@ class Battlesnake(object):
         return {
             "apiversion": "1",
             "author": "",  # TODO: Your Battlesnake Username
-            "color": "#888888",  # TODO: Personalize
-            "head": "default",  # TODO: Personalize
-            "tail": "default",  # TODO: Personalize
+            "color": "#66ffb3",  # TODO: Personalize
+            "head": "shac-workout",  # TODO: Personalize
+            "tail": "bwc-flake",  # TODO: Personalize
         }
 
     @cherrypy.expose
@@ -37,37 +37,34 @@ class Battlesnake(object):
         # Valid moves are "up", "down", "left", or "right".
         # TODO: Use the information in cherrypy.request.json to decide your next move.
         data = cherrypy.request.json
-        head = data["you"]["head"]
+        head = tuple(data["you"]["head"].values())
         snakes = data["board"]["snakes"]
-        height = data["board"]["height"]
-        width = data["board"]["width"]
+        height = tuple(data["board"]["height"].values())
+        width = (data["board"]["width"].values())
         all_food_locations = data["board"]["food"]
         turn = data["turn"]
 
-        snake_locations = self.locate_snakes(snakes)
+        snake_locations = locate_snakes(snakes)
+        nearest_food = locate_food(self, head, food_locations)
+        potential_moves = check_potential_moves(snake_locations, head, nearest_food, height, width)
+        start, goal = head, nearest_food
 
-        # Choose a random direction to move in
-        possible_moves = ["up", "down", "left", "right"]
-
-        start, goal = 
-        best_move = a_star_search(diagram4, start, goal)
-
+        best_move = a_star_search(potential_moves, start, goal)
+        move = self.convert_xy_to_direction(head, best_move)
         print(f"MOVE: {move}")
-        return {"move": move}
+        return move
 
-    def convert_xy_to_direction(self):
-
-      
-    def convert_direction_to_xy(self):
-        if movement == "up":
-          return {"x": head["x"],"y": head["y"] + 1} 
-      elif movement == "down":
-          return {"x": head["x"],"y": head["y"] - 1}
-      elif movement == "left":
-          return {"x": head["x"] - 1, "y": head["y"]}
-      elif movement == "right": 
-          return {"x": head["x"] + 1, "y": head["y"]}
-
+    def convert_xy_to_direction(self, head, best_move):
+      (x1, y1) = head
+      (x2, y2) = best_move
+      if x1 - x2 < 0:
+        return {"move": "left"}
+      if x1 - x2 > 0:
+        return {"move": "right"}
+      if y1 - y2 < 0:
+        return {"move": "down"}
+      if y1 - y2 > 0:
+        return {"move": "up"}
 
     @cherrypy.expose
     @cherrypy.tools.json_in()
