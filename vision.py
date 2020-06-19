@@ -37,8 +37,8 @@ class Vision:
     def check_potential_moves(self, snakes, head, height, width):
       potential_moves = [(head["x"] - 1, head["y"]), (head["x"] + 1, head["y"]), (head["x"], head["y"] - 1), (head["x"], head["y"] - 1)]
       snake_locations = self.locate_snakes(snakes)
-      potential_moves = filter(self.check_collisions(snake_locations, potential_moves), moves)
-      potential_moves = filter(self.out_of_bounds(potential_moves, height, width), moves)
+      potential_moves = filter(self.check_collisions(snake_locations, potential_moves), potential_moves)
+      potential_moves = filter(self.out_of_bounds(potential_moves, height, width), potential_moves)
       return potential_moves
 
     def heuristic(a, b):

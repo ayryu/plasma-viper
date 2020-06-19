@@ -51,12 +51,13 @@ class Battlesnake(object):
         turn = data["turn"]
 
         potential_moves = Vision(height, width)
-        snake_locations = board_vision.locate_snakes(snakes)
-        nearest_food = board_vision.locate_food(head, food_locations)
+        snake_locations = potential_moves.locate_snakes(snakes)
+        nearest_food = potential_moves.locate_food(head, food_locations)
         unobstructed_moves = potential_moves.check_potential_moves(snake_locations, head, height, width)
         
         start, goal = head, nearest_food
-        best_move = a_star_search(unobstructed_moves, start, goal)
+        pq = PriorityQueue()
+        best_move = pq.a_star_search(unobstructed_moves, start, goal)
         move = self.convert_xy_to_direction(head, best_move)
         print(f"MOVE: {move}")
         return move
