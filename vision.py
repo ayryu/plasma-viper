@@ -30,7 +30,7 @@ class Vision:
     
     def out_of_bounds(self, potential_moves, height, width):
       (x, y) = potential_moves
-      if (x < 0? or (y < 0) or (x >= width) or (y >= height):
+      if x < 0 or y < 0 or x >= width or y >= height:
           return True
       return False
 
