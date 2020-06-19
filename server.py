@@ -53,7 +53,7 @@ class Battlesnake(object):
 
         nearest_food_position = self.find_closest_food(head, all_food_locations)
         food_path = self.find_food_path(head, nearest_food_position)
-        self.switch_path_to_food(food_path, body)
+        self.switch_path_to_food(all_food_locations, food_path, head, body)
         self.find_surrounding_area(body)
 
         possible_moves = ["up", "down", "left", "right"]
@@ -74,33 +74,32 @@ class Battlesnake(object):
             }
 
 
-    def switch_path_to_food(self, food_path, body):
+    def switch_path_to_food(self, all_food_locations, food_path, head, body):
       # Snake coils if collision is predicted
       possible_moves = ["up", "down", "left", "right"]
       potential_moves = []
 
       # For checking immediate head directions
-        for move in possible_moves:
-          potential_moves.append(self.check_potential_move(move, head))
-        body_collision = [collision for collision in body if collision in potential_moves]
-        if body_collision:
-          for illegal_move in body_collision:
-            potential_moves.remove(illegal_move) 
-        
+      # for move in possible_moves:
+      #   potential_moves.append(self.check_potential_move(move, head))
+      # body_collision = [collision for collision in body if collision in potential_moves]
+      # if body_collision:
+      #   for illegal_move in body_collision:
+      #     potential_moves.remove(illegal_move) 
+      
       # Checks food path for body collisions
-      nearest_food_position = self.find_closest_food(head, all_food_locations)
-      food_path = self.find_food_path(head, nearest_food_position)
-      self.find_food_path(head, nearest_food_position)
-      body_in_food_path_collision = [collision for collision in body if collision in food_path]
+      # nearest_food_position = self.find_closest_food(head, all_food_locations)
+      # food_path = self.find_food_path(head, nearest_food_position)
+      # self.find_food_path(head, nearest_food_position)
+      # body_in_food_path_collision = [collision for collision in body if collision in food_path]
 
       # if body_in_food_path_collision:
-        
-      return {
-          "move": move
-        } 
 
-        
       print(f"The collision points are: {[collision for collision in body if collision in food_path]}")
+        
+      # return {
+      #     "move": move
+      #   } 
 
 
     def moves_away_from_food(self, nearest_food_position, head, potential_move):

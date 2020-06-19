@@ -62,14 +62,16 @@ def astar(maze, start, end):
             node_position = (current_node.position[0] + new_position[0], current_node.position[1] + new_position[1])
 
             # Make sure within range
-            if node_position[0] > (height - 1) or node_position[0] < 0 or node_position[1] > (len(maze[len(maze)-1]) -1) or node_position[1] < 0:
+            if node_position[0] > (len(maze) - 1) or node_position[0] < 0 or node_position[1] > (len(maze[len(maze)-1]) -1) or node_position[1] < 0:
                 continue
 
 # (len(maze[len(maze)-1]) -1) breakdown
 # innermost_value = len(maze) - 1, get position of maze edge
 # maze_position = maze[innermostvalue]
+# Find the width of the maze, then grab coordinate at width's edge
 
             # Make sure walkable terrain
+            # Example has index value of 1 as unwalkable
             if maze[node_position[0]][node_position[1]] != 0:
                 continue
 
