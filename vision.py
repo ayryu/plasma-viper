@@ -34,12 +34,12 @@ class Vision:
           return True
       return False
 
-    def check_potential_moves(self, snakes, head, closest_food, height, width):
+    def check_potential_moves(self, snakes, head, height, width):
       potential_moves = [(head["x"] - 1, head["y"]), (head["x"] + 1, head["y"]), (head["x"], head["y"] - 1), (head["x"], head["y"] - 1)]
       snake_locations = self.locate_snakes(snakes)
-      moves = filter(self.check_collisions(snake_locations, potential_moves), moves)
-      moves = filter(self.out_of_bounds(potential_moves, height, width), moves)
-      return moves
+      potential_moves = filter(self.check_collisions(snake_locations, potential_moves), moves)
+      potential_moves = filter(self.out_of_bounds(potential_moves, height, width), moves)
+      return potential_moves
 
     def heuristic(a, b):
         (x1, y1) = a
