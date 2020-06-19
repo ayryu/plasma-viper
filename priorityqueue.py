@@ -15,27 +15,33 @@ class PriorityQueue:
     def get(self):
         return heapq.heappop(self.elements)[1]
 
-    def a_star_search(unobstructed_moves, start, goal):
-        frontier = PriorityQueue()
-        frontier.put(start, 0)
+    def heuristic(self, a, b):
+        (x1, y1) = a
+        (x2, y2) = b
+        return abs(x1 - x2) + abs(y1 - y2)
+
+    def a_star_search(self, unobstructed_moves, start, goal):
+        # frontier = PriorityQueue()
+        # frontier.put(start, 0)
+        self.put(start, 0)
         came_from = {}
         distance_from_start = {} # actual g - distance b/w start and current
         came_from[start] = None
         distance_from_start[start] = 0
         
-        while not frontier.empty():
-            current_location = frontier.get()
+        while not self.empty():
+            current_location = self.get()
             
             if current_location == goal:
                 break
             
             for next in unobstructed_moves:
-                new_cost = distance_from_start[current_location] + next.heuristic(current_location, next) # potential g
+                new_cost = distance_from_start[current_location] + self.heuristic(current_location, next) # potential g
                 if next not in distance_from_start or new_cost < distance_from_start[next]:
                     distance_from_start[next] = new_cost
-                    priority = new_cost + next.heuristic(goal, next) # f
-                    frontier.put(next, priority)
+                    priority = new_cost + self.heuristic(goal, next) # f
+                    self.put(next, priority)
                     came_from[next] = current_location
-        print(f"First step: {came_from[0]}")
+        # print(f"First step: {came_from[0]}")
         print(f"Full path to food: {came_from}")
-        return came_from[0]
+        return came_from

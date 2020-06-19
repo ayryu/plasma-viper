@@ -43,24 +43,27 @@ class Battlesnake(object):
     def move(self):
         # This function is called on every turn of a game. It's how your snake decides where to move.
         data = cherrypy.request.json
-        head = tuple(data["you"]["head"].values())
+        head = data["you"]["head"]
         snakes = data["board"]["snakes"]
         height = data["board"]["height"]
         width = data["board"]["width"]
         all_food_locations = data["board"]["food"]
         turn = data["turn"]
+        print(f"Turn {turn}")
 
         potential_moves = Vision(height, width)
         snake_locations = potential_moves.locate_snakes(snakes)
         nearest_food = potential_moves.locate_food(head, all_food_locations)
         unobstructed_moves = potential_moves.check_potential_moves(snake_locations, head, height, width)
         
-        start, goal = head, nearest_food
+        start, goal = tuple(head.values()), nearest_food
         pq = PriorityQueue()
         best_move = pq.a_star_search(unobstructed_moves, start, goal)
-        move = self.convert_xy_to_direction(head, best_move)
-        print(f"MOVE: {move}")
-        return move
+        # move = self.convert_xy_to_direction(head, best_move)
+        # print(f"MOVE: {move}")
+        # return move
+        print(f"MOVE: left")
+        return {"move": "left"}
 
     def convert_xy_to_direction(self, head, best_move):
         (x1, y1) = head

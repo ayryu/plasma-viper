@@ -25,23 +25,26 @@ class Vision:
 
     # snake_locations value comes from self.locate_snakes
     def check_collisions(self, snake_locations, potential_moves):
+
       collisions = [collision for collision in snake_locations if collision in potential_moves]
       return collisions
     
     def out_of_bounds(self, potential_moves, height, width):
-      (x, y) = potential_moves
-      if x < 0 or y < 0 or x >= width or y >= height:
-          return True
-      return False
+      within_bounds = []
+      for move in potential_moves:
+        (x, y) = move
+        if x < 0 or y < 0 or x >= width or y >= height:
+          continue
+        within_bounds.append(move)
+      return within_bounds
 
-    def check_potential_moves(self, snakes, head, height, width):
-      potential_moves = [(head["x"] - 1, head["y"]), (head["x"] + 1, head["y"]), (head["x"], head["y"] - 1), (head["x"], head["y"] - 1)]
-      snake_locations = self.locate_snakes(snakes)
-      potential_moves = filter(self.check_collisions(snake_locations, potential_moves), potential_moves)
-      potential_moves = filter(self.out_of_bounds(potential_moves, height, width), potential_moves)
+    def check_potential_moves(self, snake_locations, head, height, width):
+      moves = [(head["x"] - 1, head["y"]), (head["x"] + 1, head["y"]), (head["x"], head["y"] - 1), (head["x"], head["y"] - 1)]
+      collision_free = self.check_collisions(snake_locations, moves)
+      potential_moves = self.out_of_bounds(collision_free, height, width)
       return potential_moves
 
-    def heuristic(a, b):
-        (x1, y1) = a
-        (x2, y2) = b
-        return abs(x1 - x2) + abs(y1 - y2)
+    # def heuristic(a, b):
+    #     (x1, y1) = a
+    #     (x2, y2) = b
+    #     return abs(x1 - x2) + abs(y1 - y2)
