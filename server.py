@@ -52,7 +52,7 @@ class Battlesnake(object):
 
         potential_moves = Vision(height, width)
         snake_locations = potential_moves.locate_snakes(snakes)
-        nearest_food = potential_moves.locate_food(head, food_locations)
+        nearest_food = potential_moves.locate_food(head, all_food_locations)
         unobstructed_moves = potential_moves.check_potential_moves(snake_locations, head, height, width)
         
         start, goal = head, nearest_food
