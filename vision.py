@@ -1,3 +1,8 @@
+class Vision:
+    def __init__(self, height, width):
+        self.height = height
+        self.width = width
+
     def locate_snakes(self, snakes):
       snake_bodies = []
       for snake in snakes:
@@ -35,3 +40,8 @@
       moves = filter(self.check_collisions(snake_locations, potential_moves), moves)
       moves = filter(self.out_of_bounds(potential_moves, height, width), moves)
       return moves
+
+    def heuristic(a, b):
+        (x1, y1) = a
+        (x2, y2) = b
+        return abs(x1 - x2) + abs(y1 - y2)
