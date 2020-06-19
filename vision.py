@@ -10,7 +10,7 @@ class Vision:
           snake_bodies.append(tuple(body.values()))
       return snake_bodies
 
-    def locate_food(self, head, food_locations):
+    def locate_food(self, head, all_food_locations):
       closest_food = abs(all_food_locations[0]["x"] - head["x"]) + abs(all_food_locations[0]["y"]- head["y"]) # total number of squares that you travel to reach food
       closest_food_index = 0
 
