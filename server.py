@@ -53,13 +53,22 @@ class Battlesnake(object):
         potential_moves = Vision(height, width)
         snake_locations = potential_moves.locate_snakes(snakes)
         nearest_food = potential_moves.locate_food(head, all_food_locations)
-        unobstructed_moves = potential_moves.check_potential_moves(snake_locations, tuple(head.values()), height, width)
+
+        pq = PriorityQueue()
+        obstructions = self.enemy_a_star(pq, potential_moves, snake_locations, nearest_food, snakes, head, height, width)
+        full_obstructions = obstructions[:]
+        full_obstructions.extend(snake_locations)
+
+        if len(all_food_locations) > 1:
+          random_food = self.choose_random_food(nearest_food, all_food_locations)
+          bw_foods_path = pq.a_star_search(full_obstructions, nearest_food, random_food, snake_locations, height, width)
+          full_obstructions.extend(bw_foods_path)
+        full_obstructions.append(self.change_targets(nearest_food, all_food_locations, snakes, head, length, height, width, snake_locations)) 
+        unobstructed_moves = potential_moves.check_potential_moves(full_obstructions, tuple(head.values()), height, width)
         
         # start, goal = tuple(head.values()), nearest_food
-        start, goal = tuple(head.values()), self.change_targets(nearest_food, snakes, head, length, height, width, snake_locations)
-        print(f"Start: {start}")
-        print(f"Goal: {goal}")
-        pq = PriorityQueue()
+        start, goal = tuple(head.values()), self.change_targets(nearest_food, all_food_locations, snakes, head, length, height, width, snake_locations)
+        # pq = PriorityQueue()
         best_path = pq.a_star_search(unobstructed_moves, start, goal, snake_locations, height, width)
         move = self.convert_xy_to_direction(best_path)
         print(f"MOVE: {move}")
@@ -78,26 +87,64 @@ class Battlesnake(object):
           return {"move": "up"}
         if y1 - y2 > 0:
           return {"move": "down"}
+    
+    def choose_random_food(self, nearest_food, all_food_locations):
+      other_foods = []
+      for other in all_food_locations:
+        if tuple(other.values()) != nearest_food:
+          selected_food = tuple(other.values())
+          other_foods.append(selected_food)
+      return random.choice(other_foods)
 
-    def change_targets(self, nearest_food, snakes, head, length, height, width, snake_locations):
+    # returns enemy a* as obstruction
+    def enemy_a_star(self, pq, potential_moves, snake_locations, nearest_food, snakes, head, height, width):
       # food info
-      current_target = nearest_food
       (food_x, food_y) = nearest_food
 
       # my info
       (my_head_x, my_head_y) = tuple(head.values())
       my_food_distance = abs(my_head_x - food_x) + abs(my_head_y - food_y)
       my_name = "plasma-viper"
-      my_length = int(length) + 2
+
+      # enemy info
+      enemy_head = tuple(snakes[0]["head"].values())
+      (enemy_head_x, enemy_head_y) = enemy_head
+      enemy_food_distance = abs(enemy_head_x - food_x) + abs(enemy_head_y - food_y)
+
+      for snake in snakes:
+        if snake["name"] != my_name:
+          (snake_head_x, snake_head_y) = tuple(snake["head"].values())
+          snake_food_distance = abs(snake_head_x - food_x) + abs(snake_head_y - food_y)
+          if snake_food_distance <= my_food_distance:
+            enemy_head = tuple(snake["head"].values())
+            enemy_food_distance = snake_food_distance
+
+      enemy_choices = potential_moves.check_potential_moves(snake_locations, enemy_head, height, width)
+
+      enemy_start, enemy_goal = enemy_head, nearest_food
+      my_obstructions = pq.a_star_search(enemy_choices, enemy_start, enemy_goal, snake_locations, height, width)
+      return my_obstructions
+
+    def change_targets(self, nearest_food, all_food_locations, snakes, head, length, height, width, snake_locations):
+      # food info
+      (food_x, food_y) = nearest_food
+
+      # my info
+      (my_head_x, my_head_y) = tuple(head.values())
+      my_food_distance = abs(my_head_x - food_x) + abs(my_head_y - food_y)
+      my_name = "plasma-viper"
+      my_length = int(length)
       print(f"My length at first: {my_length}")
+      enemy_tail = snakes[0]["body"][-1]
 
       # enemy info
       longest_enemy = snakes[0]["length"]
       enemy_head = tuple(snakes[0]["head"].values())
       (enemy_head_x, enemy_head_y) = enemy_head
       enemy_food_distance = abs(enemy_head_x - food_x) + abs(enemy_head_y - food_y)
-
       for snake in snakes:
+        if snake["name"] == my_name:
+          my_length = snake["length"]
         if snake["name"] != my_name:
           (snake_head_x, snake_head_y) = tuple(snake["head"].values())
           snake_length = snake["length"]
@@ -106,34 +153,29 @@ class Battlesnake(object):
 
           # Check my distance vs enemy towards food
           snake_food_distance = abs(snake_head_x - food_x) + abs(snake_head_y - food_y)
-          if my_food_distance >= snake_food_distance:
-            continue
           if my_food_distance < snake_food_distance:
             enemy_head = tuple(snake["head"].values())
             enemy_food_distance = snake_food_distance
+            enemy_tail = tuple(snake["body"][-1].values())
 
-      # Go to random location if we're too close
-      if int(longest_enemy) < my_length:
-          print(f"Longest enemy length: {longest_enemy}")
-          print("My length: {type(my_length)}")
-          return enemy_head
-      if int(longest_enemy) > my_length:
+      current_target = nearest_food
+      others = []
+      if my_length > longest_enemy:
         if my_food_distance >= enemy_food_distance:
-          rand_x = random.randint(0, width - 1)
-          rand_y = random.randint(0, height - 1)
-          rand_xy = (rand_x, rand_y)
-          while rand_xy in snake_locations:
-            rand_x = random.randint(0, width - 1)
-            rand_y = random.randint(0, height - 1)
-            rand_xy = (rand_x, rand_y)
-          print(f"Random new location: {rand_xy}")
-          return rand_xy
-        if my_food_distance < enemy_food_distance:
-          print("Grabbing food")
-          return nearest_food
-      
-      # return current_target
-
+            if len(all_food_locations) == 1:
+              current_target = enemy_head
+            else:
+              for other in all_food_locations:
+                if tuple(other.values()) != nearest_food:
+                  selected = tuple(other.values())
+                  others.append(selected)
+              current_target = random.choice(others)
+        current_target = enemy_head
+      else:
+        current_target = nearest_food
+        
+      print(f"Current target: {current_target}")
+      return current_target
 
     @cherrypy.expose
     @cherrypy.tools.json_in()
