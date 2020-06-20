@@ -3,6 +3,7 @@ class Vision:
         self.height = height
         self.width = width
 
+    # outputs list of snake position tuples
     def locate_snakes(self, snakes):
       snake_bodies = []
       for snake in snakes:
@@ -10,6 +11,7 @@ class Vision:
           snake_bodies.append(tuple(body.values()))
       return snake_bodies
 
+    # outputs tuple of closest food xy
     def locate_food(self, head, all_food_locations):
       closest_food = abs(all_food_locations[0]["x"] - head["x"]) + abs(all_food_locations[0]["y"]- head["y"]) # total number of squares that you travel to reach food
       closest_food_index = 0
@@ -26,7 +28,7 @@ class Vision:
     # snake_locations value comes from self.locate_snakes
     def check_collisions(self, snake_locations, potential_moves):
 
-      collisions = [collision for collision in snake_locations if collision in potential_moves]
+      collisions = [collision for collision in potential_moves if collision not in snake_locations]
       return collisions
     
     def out_of_bounds(self, potential_moves, height, width):
@@ -39,9 +41,13 @@ class Vision:
       return within_bounds
 
     def check_potential_moves(self, snake_locations, head, height, width):
-      moves = [(head["x"] - 1, head["y"]), (head["x"] + 1, head["y"]), (head["x"], head["y"] - 1), (head["x"], head["y"] - 1)]
+      (x, y) = head
+      moves = [(x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)]
+      print(f"moves in check_potential_moves: {moves}")
       collision_free = self.check_collisions(snake_locations, moves)
+      print(f"collision_free: {collision_free}")
       potential_moves = self.out_of_bounds(collision_free, height, width)
+      print(f"potential_moves: {potential_moves}")
       return potential_moves
 
     # def heuristic(a, b):

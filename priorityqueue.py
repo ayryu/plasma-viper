@@ -1,6 +1,7 @@
 import heapq
 import os
 import cherrypy
+from vision import *
 
 class PriorityQueue:
     def __init__(self):
@@ -20,28 +21,38 @@ class PriorityQueue:
         (x2, y2) = b
         return abs(x1 - x2) + abs(y1 - y2)
 
-    def a_star_search(self, unobstructed_moves, start, goal):
-        # frontier = PriorityQueue()
-        # frontier.put(start, 0)
-        self.put(start, 0)
+    def a_star_search(self, unobstructed_moves, start, goal, snake_locations, height, width):
+        cardinals = Vision(height, width)
+        frontier = PriorityQueue()
+        frontier.put(start, 0)
         came_from = {}
         distance_from_start = {} # actual g - distance b/w start and current
         came_from[start] = None
         distance_from_start[start] = 0
+        movement_direction = []
         
-        while not self.empty():
-            current_location = self.get()
-            
+        while not frontier.empty():
+            current_location = frontier.get()
+            movement_direction.append(current_location)
+            print(f"Current location after loop: {current_location}")
             if current_location == goal:
+                print("current_location == goal!")
                 break
             
-            for next in unobstructed_moves:
+            # for x in FUNCTION because the potential_moves change
+            # when the current_location changes
+            for next in cardinals.check_potential_moves(snake_locations, current_location, height, width):
                 new_cost = distance_from_start[current_location] + self.heuristic(current_location, next) # potential g
+                print(f"current_location: {current_location}")
+                print(f"next: {next}")
+                print(f"new_cost: {new_cost}")
                 if next not in distance_from_start or new_cost < distance_from_start[next]:
                     distance_from_start[next] = new_cost
                     priority = new_cost + self.heuristic(goal, next) # f
-                    self.put(next, priority)
+                    frontier.put(next, priority)
                     came_from[next] = current_location
+                    print(f"F: {priority}")
+            print("End of unobst loop")
         # print(f"First step: {came_from[0]}")
-        print(f"Full path to food: {came_from}")
-        return came_from
+        # print(f"Full path to food: {came_from}")
+        return movement_direction

@@ -54,28 +54,32 @@ class Battlesnake(object):
         potential_moves = Vision(height, width)
         snake_locations = potential_moves.locate_snakes(snakes)
         nearest_food = potential_moves.locate_food(head, all_food_locations)
-        unobstructed_moves = potential_moves.check_potential_moves(snake_locations, head, height, width)
+        unobstructed_moves = potential_moves.check_potential_moves(snake_locations, tuple(head.values()), height, width)
         
         start, goal = tuple(head.values()), nearest_food
+        print(f"Start: {start}")
+        print(f"Goal: {goal}")
         pq = PriorityQueue()
-        best_move = pq.a_star_search(unobstructed_moves, start, goal)
-        # move = self.convert_xy_to_direction(head, best_move)
-        # print(f"MOVE: {move}")
-        # return move
-        print(f"MOVE: left")
-        return {"move": "left"}
+        best_path = pq.a_star_search(unobstructed_moves, start, goal, snake_locations, height, width)
+        move = self.convert_xy_to_direction(best_path)
+        print(f"MOVE: {move}")
+        return move
+        # print(f"MOVE: left")
+        # return {"move": "left"}
 
-    def convert_xy_to_direction(self, head, best_move):
-        (x1, y1) = head
-        (x2, y2) = best_move
-        if x1 - x2 < 0:
-          return {"move": "left"}
+    def convert_xy_to_direction(self, best_path):
+        (x1, y1) = best_path[0]
+        print(f"Best path [0]: {best_path[0]}")
+        (x2, y2) = best_path[1]
+        print(f"Best path [1]: {best_path[1]}")
         if x1 - x2 > 0:
+          return {"move": "left"}
+        if x1 - x2 < 0:
           return {"move": "right"}
         if y1 - y2 < 0:
-          return {"move": "down"}
-        if y1 - y2 > 0:
           return {"move": "up"}
+        if y1 - y2 > 0:
+          return {"move": "down"}
 
     @cherrypy.expose
     @cherrypy.tools.json_in()
