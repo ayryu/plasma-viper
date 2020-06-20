@@ -34,7 +34,6 @@ class PriorityQueue:
         while not frontier.empty():
             current_location = frontier.get()
             movement_direction.append(current_location)
-            print(f"Current location after loop: {current_location}")
             if current_location == goal:
                 print("current_location == goal!")
                 break
@@ -43,16 +42,9 @@ class PriorityQueue:
             # when the current_location changes
             for next in cardinals.check_potential_moves(snake_locations, current_location, height, width):
                 new_cost = distance_from_start[current_location] + self.heuristic(current_location, next) # potential g
-                print(f"current_location: {current_location}")
-                print(f"next: {next}")
-                print(f"new_cost: {new_cost}")
                 if next not in distance_from_start or new_cost < distance_from_start[next]:
                     distance_from_start[next] = new_cost
                     priority = new_cost + self.heuristic(goal, next) # f
                     frontier.put(next, priority)
                     came_from[next] = current_location
-                    print(f"F: {priority}")
-            print("End of unobst loop")
-        # print(f"First step: {came_from[0]}")
-        # print(f"Full path to food: {came_from}")
         return movement_direction

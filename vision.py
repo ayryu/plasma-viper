@@ -43,14 +43,6 @@ class Vision:
     def check_potential_moves(self, snake_locations, head, height, width):
       (x, y) = head
       moves = [(x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)]
-      print(f"moves in check_potential_moves: {moves}")
       collision_free = self.check_collisions(snake_locations, moves)
-      print(f"collision_free: {collision_free}")
       potential_moves = self.out_of_bounds(collision_free, height, width)
-      print(f"potential_moves: {potential_moves}")
       return potential_moves
-
-    # def heuristic(a, b):
-    #     (x1, y1) = a
-    #     (x2, y2) = b
-    #     return abs(x1 - x2) + abs(y1 - y2)

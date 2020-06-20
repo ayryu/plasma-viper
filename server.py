@@ -2,9 +2,7 @@ import os
 import cherrypy
 from priorityqueue import *
 from vision import *
-# import sys
-
-# sys.path.append(".")
+import random
 
 class Battlesnake(object):
     @cherrypy.expose
@@ -44,6 +42,7 @@ class Battlesnake(object):
         # This function is called on every turn of a game. It's how your snake decides where to move.
         data = cherrypy.request.json
         head = data["you"]["head"]
+        length = data["you"]["length"]
         snakes = data["board"]["snakes"]
         height = data["board"]["height"]
         width = data["board"]["width"]
@@ -56,7 +55,8 @@ class Battlesnake(object):
         nearest_food = potential_moves.locate_food(head, all_food_locations)
         unobstructed_moves = potential_moves.check_potential_moves(snake_locations, tuple(head.values()), height, width)
         
-        start, goal = tuple(head.values()), nearest_food
+        # start, goal = tuple(head.values()), nearest_food
+        start, goal = tuple(head.values()), self.change_targets(nearest_food, snakes, head, length, height, width, snake_locations)
         print(f"Start: {start}")
         print(f"Goal: {goal}")
         pq = PriorityQueue()
@@ -64,8 +64,6 @@ class Battlesnake(object):
         move = self.convert_xy_to_direction(best_path)
         print(f"MOVE: {move}")
         return move
-        # print(f"MOVE: left")
-        # return {"move": "left"}
 
     def convert_xy_to_direction(self, best_path):
         (x1, y1) = best_path[0]
@@ -80,6 +78,62 @@ class Battlesnake(object):
           return {"move": "up"}
         if y1 - y2 > 0:
           return {"move": "down"}
+
+    def change_targets(self, nearest_food, snakes, head, length, height, width, snake_locations):
+      # food info
+      current_target = nearest_food
+      (food_x, food_y) = nearest_food
+
+      # my info
+      (my_head_x, my_head_y) = tuple(head.values())
+      my_food_distance = abs(my_head_x - food_x) + abs(my_head_y - food_y)
+      my_name = "plasma-viper"
+      my_length = int(length) + 2
+      print(f"My length at first: {my_length}")
+
+      # enemy info
+      longest_enemy = snakes[0]["length"]
+      enemy_head = tuple(snakes[0]["head"].values())
+      (enemy_head_x, enemy_head_y) = enemy_head
+      enemy_food_distance = abs(enemy_head_x - food_x) + abs(enemy_head_y - food_y)
+
+      for snake in snakes:
+        if snake["name"] != my_name:
+          (snake_head_x, snake_head_y) = tuple(snake["head"].values())
+          snake_length = snake["length"]
+          if snake_length >= longest_enemy:
+            longest_enemy = snake_length
+
+          # Check my distance vs enemy towards food
+          snake_food_distance = abs(snake_head_x - food_x) + abs(snake_head_y - food_y)
+          if my_food_distance >= snake_food_distance:
+            continue
+          if my_food_distance < snake_food_distance:
+            enemy_head = tuple(snake["head"].values())
+            enemy_food_distance = snake_food_distance
+
+      # Go to random location if we're too close
+      if int(longest_enemy) < my_length:
+          print(f"Longest enemy length: {longest_enemy}")
+          print("My length: {type(my_length)}")
+          return enemy_head
+      if int(longest_enemy) > my_length:
+        if my_food_distance >= enemy_food_distance:
+          rand_x = random.randint(0, width - 1)
+          rand_y = random.randint(0, height - 1)
+          rand_xy = (rand_x, rand_y)
+          while rand_xy in snake_locations:
+            rand_x = random.randint(0, width - 1)
+            rand_y = random.randint(0, height - 1)
+            rand_xy = (rand_x, rand_y)
+          print(f"Random new location: {rand_xy}")
+          return rand_xy
+        if my_food_distance < enemy_food_distance:
+          print("Grabbing food")
+          return nearest_food
+      
+      # return current_target
+
 
     @cherrypy.expose
     @cherrypy.tools.json_in()
