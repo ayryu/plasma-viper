@@ -1,7 +1,5 @@
 # A Simple [Battlesnake](http://play.battlesnake.com) Written in Python
 
-This is a basic implementation of the [Battlesnake API](https://docs.battlesnake.com/references/api). It's a great starting point for anyone wanting to program their first Battlesnake using Python. It comes ready to use with [Repl.it](https://repl.it) and provides instructions below for getting started. It can also be deployed to [Heroku](https://heroku.com), or any other cloud provider you'd like.
-
 ### Technologies Used
 
 * [Python3](https://www.python.org/)
@@ -91,7 +89,8 @@ Whenever you update these values, go to the page for your Battlesnake and select
 
 On every turn of each game your Battlesnake receives information about the game board and must decide its next move.
 
-Locate the `move` function inside [server.py](server.py#L37). Possible moves are "up", "down", "left", or "right". To start your Battlesnake will choose a move randomly. Your goal as a developer is to read information sent to you about the board (available in the `data` variable) and decide where your Battlesnake should move next.
+Locate the `move` function inside [server.py](server.py#L37). Possible moves are "up", "down", "left", or "right". 
+Your goal as a developer is to read information sent to you about the board (available in the `data` variable) and decide where your Battlesnake should move next.
 
 See the [Battlesnake Game Rules](https://docs.battlesnake.com/references/rules) for more information on playing the game, moving around the board, and improving your algorithm.
 
@@ -102,51 +101,6 @@ After making changes to your Battlesnake, you can restart your Repl to have the 
 Once the Repl has restarted you can [create a new game](https://play.battlesnake.com/account/games/create/) with your Battlesnake to watch your latest changes in action.
 
 **At this point you should feel comfortable making changes to your code and starting new Battlesnake games to test those changes!**
-
-
-
-## Developing Your Battlesnake Further
-
-Now you have everything you need to start making your Battlesnake super smart!
-
-### Early Development Goals
-
-Here are some simple goals to help you develop your Battlesnake early on. Completing these will make your Battlesnake competitive against other Battlesnakes in multi-player games.
-
-- [ ] Avoid colliding with walls
-- [ ] Avoid colliding with yourself
-- [ ] Try to move towards food
-- [ ] Avoid colliding with other snakes
-
-Once you have completed these steps you'll be ready to compete live against other Battlesnakes and start exploring and implementing more complex strategies.
-
-
-### Helpful Tips
-
-* Keeping your Repl open in a second window while games are running is helpful for watching server activity and debugging any problems with your Battlesnake.
-
-* You can use the Python [print function](https://docs.python.org/3.8/library/functions.html#print) to output information to your server logs. This is very useful for debugging logic in your code during Battlesnake games.
-
-* Review the [Battlesnake API Docs](https://docs.battlesnake.com/references/api) to learn what information is provided with each command.
-
-* When viewing a Battlesnake game you can pause playback and step forward/backward one frame at a time. If you review your logs at the same time, you can see what decision your Battlesnake made on each turn.
-
-
-
-## Joining a Battlesnake Arena
-
-Once you've made your Battlesnake behave and survive on its own, you can enter it into the [Global Battlesnake Arena](https://play.battlesnake.com/arena/global) to see how it performs against other Battlesnakes worldwide.
-
-Arenas will regularly create new games and rank Battlesnakes based on their results. They're a good way to get regular feedback on how well your Battlesnake is performing, and a fun way to track your progress as you develop your algorithm.
-
-
-
-## (Optional) Using a Cloud Provider
-
-As your Battlesnake gets more complex, it might make sense to move it to a dedicated hosting provider such as Heroku or AWS. We suggest choosing a platform you're familiar with, or one you'd be interested in learning more about.
-
-If you have questions or ideas, our developer community on [Slack](https://play.battlesnake.com/slack) and [Discord](https://play.battlesnake.com/discord) will be able to help out.
-
 
 
 ## (Optional) Running Your Battlesnake Locally
