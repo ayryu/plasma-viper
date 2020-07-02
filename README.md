@@ -1,4 +1,4 @@
-# A Simple [Battlesnake](http://play.battlesnake.com) Written in Python
+# A [Battlesnake](http://play.battlesnake.com) Written in Python
 
 ### Technologies Used
 
